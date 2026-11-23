@@ -43,11 +43,21 @@ async function getSelectedTabs() {
   return tabs;
 }
 
+// Runs from the popup, shortcut and context menu share one queue, so two
+// overlapping runs can't both create a group with the same name.
+let runQueue = Promise.resolve();
+
+function classifyTabs(tabs) {
+  const run = runQueue.then(() => classifyTabsNow(tabs));
+  runQueue = run.catch(() => {});
+  return run;
+}
+
 /**
  * Classify tabs one by one (sequentially, so a group created for one tab
  * is offered to the model as an existing group for the next).
  */
-async function classifyTabs(tabs) {
+async function classifyTabsNow(tabs) {
   const settings = await loadSettings();
   if (!settings.apiBaseUrl || !settings.model) {
     throw new Error("Configure the API base URL and model in the extension options first.");
