@@ -1,4 +1,5 @@
 import { loadSettings } from "./lib/settings.js";
+import { MESSAGE } from "./lib/messages.js";
 
 const btn = document.getElementById("classify");
 const status = document.getElementById("status");
@@ -26,7 +27,7 @@ btn.addEventListener("click", async () => {
   status.className = "";
   status.textContent = "Classifying…";
 
-  const res = await chrome.runtime.sendMessage({ type: "classify-selected" });
+  const res = await chrome.runtime.sendMessage({ type: MESSAGE.classifySelected });
   btn.disabled = false;
 
   if (!res?.ok) {

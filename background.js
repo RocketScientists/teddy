@@ -1,5 +1,6 @@
 import { loadSettings, parseCategories } from "./lib/settings.js";
 import { classifyPage } from "./lib/llm.js";
+import { MESSAGE } from "./lib/messages.js";
 
 const MENU_ID = "classify-tab";
 
@@ -23,7 +24,7 @@ chrome.commands.onCommand.addListener(async (command) => {
 
 // Messages from the popup.
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-  if (msg?.type === "classify-selected") {
+  if (msg?.type === MESSAGE.classifySelected) {
     getSelectedTabs()
       .then(classifyTabs)
       .then((results) => sendResponse({ ok: true, results }))
