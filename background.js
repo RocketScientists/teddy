@@ -57,6 +57,7 @@ async function classifyTabs(tabs) {
   const results = [];
   for (const tab of tabs) {
     try {
+      if (tab.pinned) throw new Error("Pinned tabs can't be grouped. Unpin it first.");
       const page = await extractPage(tab, settings.maxContentChars);
       const groups = await chrome.tabGroups.query({ windowId: tab.windowId });
       const existingNames = groups.map((g) => g.title).filter(Boolean);
