@@ -1,4 +1,4 @@
-import { loadSettings, parseCategories } from "./lib/settings.js";
+import { loadSettings, parseCategories, validateSettings } from "./lib/settings.js";
 import { classifyPage } from "./lib/llm.js";
 import { MESSAGE } from "./lib/messages.js";
 
@@ -60,9 +60,8 @@ function classifyTabs(tabs) {
  */
 async function classifyTabsNow(tabs) {
   const settings = await loadSettings();
-  if (!settings.apiBaseUrl || !settings.model) {
-    throw new Error("Configure the API base URL and model in the extension options first.");
-  }
+  const settingsProblem = validateSettings(settings);
+  if (settingsProblem) throw new Error(settingsProblem);
   const preferredGroups = parseCategories(settings.categories);
 
   const results = [];

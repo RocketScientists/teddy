@@ -1,4 +1,4 @@
-import { loadSettings } from "./lib/settings.js";
+import { loadSettings, validateSettings } from "./lib/settings.js";
 import { MESSAGE } from "./lib/messages.js";
 
 const btn = document.getElementById("classify");
@@ -15,8 +15,9 @@ document.getElementById("open-options").addEventListener("click", (e) => {
 });
 
 loadSettings().then((settings) => {
-  if (!settings.apiKey && settings.apiBaseUrl.includes("api.openai.com")) {
-    status.textContent = "Set your API key in Settings first.";
+  const settingsProblem = validateSettings(settings);
+  if (settingsProblem) {
+    status.textContent = settingsProblem;
     status.className = "error";
   }
 });
