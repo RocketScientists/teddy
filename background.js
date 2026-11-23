@@ -62,7 +62,7 @@ async function classifyTabsNow(tabs) {
   if (!settings.apiBaseUrl || !settings.model) {
     throw new Error("Configure the API base URL and model in the extension options first.");
   }
-  const preferred = parseCategories(settings.categories);
+  const preferredGroups = parseCategories(settings.categories);
 
   const results = [];
   for (const tab of tabs) {
@@ -70,10 +70,13 @@ async function classifyTabsNow(tabs) {
       if (tab.pinned) throw new Error("Pinned tabs can't be grouped. Unpin it first.");
       const page = await extractPage(tab, settings.maxContentChars);
       const groups = await chrome.tabGroups.query({ windowId: tab.windowId });
-      const existingNames = groups.map((g) => g.title).filter(Boolean);
+      const groupContext = {
+        existingGroups: groups.map((g) => g.title).filter(Boolean),
+        preferredGroups,
+      };
 
-      const { group, color } = await classifyPage(settings, page, existingNames, preferred);
-      const groupTitle = await moveTabToGroup(tab, group, color, groups);
+      const classification = await classifyPage(settings, page, groupContext);
+      const groupTitle = await moveTabToGroup(tab, classification, groups);
       results.push({ tabId: tab.id, title: tab.title, group: groupTitle, ok: true });
     } catch (err) {
       results.push({ tabId: tab.id, title: tab.title, ok: false, error: errorMessage(err) });
@@ -108,10 +111,10 @@ async function extractPage(tab, maxChars) {
 }
 
 /**
- * Join the group whose title matches groupName (ignoring case), or create it.
+ * Join the group whose title matches the classification (ignoring case), or create it.
  * @returns {Promise<string>} the title of the group the tab ended up in
  */
-async function moveTabToGroup(tab, groupName, color, groupsInWindow) {
+async function moveTabToGroup(tab, { group: groupName, color }, groupsInWindow) {
   const existing = groupsInWindow.find(
     (g) => (g.title || "").toLowerCase() === groupName.toLowerCase()
   );
