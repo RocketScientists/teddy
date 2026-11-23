@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     getSelectedTabs()
       .then(classifyTabs)
       .then((results) => sendResponse({ ok: true, results }))
-      .catch((err) => sendResponse({ ok: false, error: String(err.message || err) }));
+      .catch((err) => sendResponse({ ok: false, error: errorMessage(err) }));
     return true; // keep the channel open for the async response
   }
 });
@@ -76,7 +76,7 @@ async function classifyTabsNow(tabs) {
       const groupTitle = await moveTabToGroup(tab, group, color, groups);
       results.push({ tabId: tab.id, title: tab.title, group: groupTitle, ok: true });
     } catch (err) {
-      results.push({ tabId: tab.id, title: tab.title, ok: false, error: String(err.message || err) });
+      results.push({ tabId: tab.id, title: tab.title, ok: false, error: errorMessage(err) });
     }
   }
   return results;
@@ -127,6 +127,20 @@ async function moveTabToGroup(tab, groupName, color, groupsInWindow) {
   return groupName;
 }
 
+const BADGE = {
+  success: { text: "✓", color: "#188038" },
+  failure: { text: "!", color: "#d93025" },
+};
+
+async function setBadge({ text, color }) {
+  await chrome.action.setBadgeBackgroundColor({ color });
+  await chrome.action.setBadgeText({ text });
+}
+
+function errorMessage(err) {
+  return String(err?.message || err);
+}
+
 /** Badge feedback for triggers that have no UI (shortcut, context menu). */
 async function runWithBadge(fn) {
   await chrome.action.setBadgeText({ text: "…" });
@@ -134,12 +148,10 @@ async function runWithBadge(fn) {
     const results = await fn();
     const failed = results.filter((r) => !r.ok);
     if (failed.length) console.warn("Teddy failures:", failed);
-    await chrome.action.setBadgeBackgroundColor({ color: failed.length ? "#d93025" : "#188038" });
-    await chrome.action.setBadgeText({ text: failed.length ? "!" : "✓" });
+    await setBadge(failed.length ? BADGE.failure : BADGE.success);
   } catch (err) {
     console.error("Teddy:", err);
-    await chrome.action.setBadgeBackgroundColor({ color: "#d93025" });
-    await chrome.action.setBadgeText({ text: "!" });
+    await setBadge(BADGE.failure);
   }
   // Best effort: lost if Chrome stops the worker first. The popup and the
   // next run also clear the badge, so it can't stay stale for long.
