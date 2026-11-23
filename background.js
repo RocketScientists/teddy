@@ -73,8 +73,8 @@ async function classifyTabsNow(tabs) {
       const existingNames = groups.map((g) => g.title).filter(Boolean);
 
       const { group, color } = await classifyTab(settings, page, existingNames, preferred);
-      await moveTabToGroup(tab, group, color, groups);
-      results.push({ tabId: tab.id, title: tab.title, group, ok: true });
+      const groupTitle = await moveTabToGroup(tab, group, color, groups);
+      results.push({ tabId: tab.id, title: tab.title, group: groupTitle, ok: true });
     } catch (err) {
       results.push({ tabId: tab.id, title: tab.title, ok: false, error: String(err.message || err) });
     }
@@ -107,20 +107,24 @@ async function extractPage(tab, maxChars) {
   }
 }
 
+/**
+ * Join the group whose title matches groupName (ignoring case), or create it.
+ * @returns {Promise<string>} the title of the group the tab ended up in
+ */
 async function moveTabToGroup(tab, groupName, color, groupsInWindow) {
   const existing = groupsInWindow.find(
     (g) => (g.title || "").toLowerCase() === groupName.toLowerCase()
   );
   if (existing) {
     await chrome.tabs.group({ tabIds: [tab.id], groupId: existing.id });
-    return existing.id;
+    return existing.title;
   }
   const groupId = await chrome.tabs.group({
     tabIds: [tab.id],
     createProperties: { windowId: tab.windowId },
   });
   await chrome.tabGroups.update(groupId, { title: groupName, color });
-  return groupId;
+  return groupName;
 }
 
 /** Badge feedback for triggers that have no UI (shortcut, context menu). */
