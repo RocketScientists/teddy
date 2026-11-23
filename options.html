@@ -10,7 +10,7 @@
   <form id="form">
     <label>API base URL
       <input name="apiBaseUrl" type="url" required placeholder="https://api.openai.com/v1" />
-      <small>Any OpenAI-compatible endpoint; <code>/chat/completions</code> is appended. E.g. Ollama: <code>http://localhost:11434/v1</code></small>
+      <small>Any OpenAI-compatible endpoint; <code>/chat/completions</code> is appended. E.g. Ollama: <code>http://localhost:11434/v1</code> (run Ollama with <code>OLLAMA_ORIGINS="chrome-extension://*"</code>, otherwise it returns 403)</small>
     </label>
     <label>API key
       <input name="apiKey" type="password" autocomplete="off" placeholder="sk-…" />

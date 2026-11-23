@@ -11,6 +11,8 @@ model picks — reusing an existing group in the window, or creating a new one.
 2. Click **Load unpacked** and choose this folder.
 3. Open the extension's **Settings** (popup → Settings, or right-click the icon → Options) and set:
    - **API base URL** – e.g. `https://api.openai.com/v1`, `https://openrouter.ai/api/v1`, `http://localhost:11434/v1` (Ollama)
+     - Ollama rejects requests from browser extensions by default (HTTP 403). Start it with
+       `OLLAMA_ORIGINS="chrome-extension://*" ollama serve` (or set that variable for the Ollama app).
    - **API key** – stored in `chrome.storage.local`, never synced
    - **Model** – e.g. `gpt-4o-mini`
    - Optional **preferred group names** to steer the model toward your own categories
