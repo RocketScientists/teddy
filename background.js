@@ -32,11 +32,15 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 });
 
-/** Highlighted (multi-selected) tabs in the current window; falls back to the active tab. */
+/**
+ * Highlighted (multi-selected) tabs in the last focused window; falls back to the active tab.
+ * Uses lastFocusedWindow because a service worker has no "current" window of its own.
+ */
 async function getSelectedTabs() {
-  const tabs = await chrome.tabs.query({ currentWindow: true, highlighted: true });
-  if (tabs.length) return tabs;
-  return chrome.tabs.query({ currentWindow: true, active: true });
+  let tabs = await chrome.tabs.query({ lastFocusedWindow: true, highlighted: true });
+  if (!tabs.length) tabs = await chrome.tabs.query({ lastFocusedWindow: true, active: true });
+  if (!tabs.length) throw new Error("No selected tab found. Focus a browser window and try again.");
+  return tabs;
 }
 
 /**
