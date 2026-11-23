@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Teddy",
+  "version": "0.1.0",
+  "description": "Classify the selected tab(s) into tab groups using an OpenAI-compatible LLM.",
+  "permissions": ["tabs", "tabGroups", "scripting", "storage", "contextMenus"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Teddy: classify tab",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "commands": {
+    "classify-selected-tabs": {
+      "suggested_key": { "default": "Alt+Shift+G" },
+      "description": "Classify the selected tab(s) into groups"
+    }
+  }
+}
