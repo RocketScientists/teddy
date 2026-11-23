@@ -4,6 +4,10 @@ const btn = document.getElementById("classify");
 const status = document.getElementById("status");
 const list = document.getElementById("results");
 
+// The worker clears the badge on a timer, but the timer is lost if Chrome
+// stops the worker first; opening the popup always clears a stale badge.
+chrome.action.setBadgeText({ text: "" });
+
 document.getElementById("open-options").addEventListener("click", (e) => {
   e.preventDefault();
   chrome.runtime.openOptionsPage();

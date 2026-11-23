@@ -127,5 +127,9 @@ async function runWithBadge(fn) {
     await chrome.action.setBadgeBackgroundColor({ color: "#d93025" });
     await chrome.action.setBadgeText({ text: "!" });
   }
+  // Best effort: lost if Chrome stops the worker first. The popup and the
+  // next run also clear the badge, so it can't stay stale for long.
   setTimeout(() => chrome.action.setBadgeText({ text: "" }), 3000);
 }
+
+chrome.runtime.onStartup.addListener(() => chrome.action.setBadgeText({ text: "" }));
