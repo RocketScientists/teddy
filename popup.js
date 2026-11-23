@@ -13,8 +13,8 @@ document.getElementById("open-options").addEventListener("click", (e) => {
   chrome.runtime.openOptionsPage();
 });
 
-loadSettings().then((s) => {
-  if (!s.apiKey && s.apiBaseUrl.includes("api.openai.com")) {
+loadSettings().then((settings) => {
+  if (!settings.apiKey && settings.apiBaseUrl.includes("api.openai.com")) {
     status.textContent = "Set your API key in Settings first.";
     status.className = "error";
   }

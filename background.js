@@ -1,5 +1,5 @@
 import { loadSettings, parseCategories } from "./lib/settings.js";
-import { classifyTab } from "./lib/llm.js";
+import { classifyPage } from "./lib/llm.js";
 
 const MENU_ID = "classify-tab";
 
@@ -72,7 +72,7 @@ async function classifyTabsNow(tabs) {
       const groups = await chrome.tabGroups.query({ windowId: tab.windowId });
       const existingNames = groups.map((g) => g.title).filter(Boolean);
 
-      const { group, color } = await classifyTab(settings, page, existingNames, preferred);
+      const { group, color } = await classifyPage(settings, page, existingNames, preferred);
       const groupTitle = await moveTabToGroup(tab, group, color, groups);
       results.push({ tabId: tab.id, title: tab.title, group: groupTitle, ok: true });
     } catch (err) {
@@ -84,7 +84,7 @@ async function classifyTabsNow(tabs) {
 
 /** Get title/URL plus a text excerpt from the page. Falls back to title+URL on restricted pages. */
 async function extractPage(tab, maxChars) {
-  const base = { title: tab.title || "", url: tab.url || "" };
+  const titleAndUrl = { title: tab.title || "", url: tab.url || "" };
   try {
     const [injection] = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
@@ -100,10 +100,10 @@ async function extractPage(tab, maxChars) {
       },
       args: [maxChars],
     });
-    return { ...base, ...(injection?.result || {}) };
+    return { ...titleAndUrl, ...(injection?.result || {}) };
   } catch {
     // chrome://, Web Store, PDF viewer, discarded tabs, etc. can't be scripted.
-    return base;
+    return titleAndUrl;
   }
 }
 
