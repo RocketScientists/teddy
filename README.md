@@ -23,6 +23,15 @@ model picks — reusing an existing group in the window, or creating a new one.
 - Or press **Alt+Shift+G** (change at `chrome://extensions/shortcuts`).
 - Or right-click a page → **Classify tab into group**.
 
+### New tab position
+
+Chrome sometimes opens new tabs at the end of the tab strip and sometimes next
+to the current tab. In **Settings → New tabs** you can force new tabs to open
+at the **start** (just after pinned tabs) or the **end**. This applies to tabs
+from the new-tab shortcut and from other apps; tabs opened from a link stay
+next to their opener unless you tick **Also move tabs opened from a link**.
+Pinned tabs and tabs Chrome puts in a group are never moved.
+
 The shortcut and context menu show a badge on the icon: ✓ for success, ! for failure (details in the service worker console).
 
 ## How it works
@@ -32,6 +41,7 @@ The shortcut and context menu show a badge on the icon: ✓ for success, ! for f
 | `background.js` | Service worker: gets the selected tabs, extracts page text via `chrome.scripting`, calls the LLM, groups tabs |
 | `lib/llm.js` | Builds the prompt, calls `POST {base}/chat/completions`, parses `{"group","color"}` JSON |
 | `lib/settings.js` | Settings defaults and storage |
+| `lib/tab-position.js` | Moves new tabs to the start or end of the tab strip |
 | `popup.*`, `options.*` | UI |
 
 Tabs are classified one at a time so a group created for one tab is offered as

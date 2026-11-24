@@ -25,6 +25,20 @@
     <label>Preferred group names (optional, one per line)
       <textarea name="categories" rows="6" placeholder="Work&#10;News&#10;Shopping&#10;Dev Docs"></textarea>
     </label>
+    <h2>New tabs</h2>
+    <label>Open new tabs at
+      <select name="newTabPosition">
+        <option value="default">Wherever Chrome puts them</option>
+        <option value="start">The start of the tab strip (after pinned tabs)</option>
+        <option value="end">The end of the tab strip</option>
+      </select>
+      <small>Applies to tabs opened with the new-tab shortcut or from other apps. Pinned tabs and tabs Chrome puts in a group are left alone.</small>
+    </label>
+    <label class="checkbox">
+      <input name="moveTabsOpenedFromLinks" type="checkbox" />
+      Also move tabs opened from a link in another tab
+      <small>Off: those stay next to the tab you opened them from.</small>
+    </label>
     <button type="submit">Save</button>
     <span id="saved"></span>
   </form>
