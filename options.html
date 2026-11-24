@@ -8,6 +8,8 @@
 <body class="options">
   <h1>Teddy Settings</h1>
   <form id="form">
+    <h2>Classify tabs</h2>
+    <p class="section-hint">Teddy sends the selected tab's title, URL and some page text to this AI service and moves the tab into the group it suggests.</p>
     <label>API base URL
       <input name="apiBaseUrl" type="url" required placeholder="https://api.openai.com/v1" />
       <small>Any OpenAI-compatible endpoint; <code>/chat/completions</code> is appended. E.g. Ollama: <code>http://localhost:11434/v1</code> (run Ollama with <code>OLLAMA_ORIGINS="chrome-extension://*"</code>, otherwise it returns 403)</small>
@@ -26,6 +28,7 @@
       <textarea name="categories" rows="6" placeholder="Work&#10;News&#10;Shopping&#10;Dev Docs"></textarea>
     </label>
     <h2>New tabs</h2>
+    <p class="section-hint">Choose where newly opened tabs appear in the tab strip.</p>
     <label>Open new tabs at
       <select name="newTabPosition">
         <option value="default">Wherever Chrome puts them</option>

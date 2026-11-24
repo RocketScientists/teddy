@@ -34,3 +34,5 @@ small, .hint { color: #777; display: block; margin-top: 4px; }
 .options h2 { font-size: 14px; margin: 22px 0 10px; }
 .options label.checkbox { font-weight: normal; }
 .options label.checkbox input { display: inline; width: auto; margin: 0 6px 0 0; }
+.options form > h2:first-child { margin-top: 0; }
+.options .section-hint { color: #777; margin: -4px 0 12px; }
