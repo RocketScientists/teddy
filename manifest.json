@@ -18,6 +18,14 @@
     "classify-selected-tabs": {
       "suggested_key": { "default": "Alt+Shift+G" },
       "description": "Classify the selected tab(s) into groups"
+    },
+    "move-tabs-to-start": {
+      "suggested_key": { "default": "Alt+Shift+Home" },
+      "description": "Move the selected tab(s) to the start of the tab strip"
+    },
+    "move-tabs-to-end": {
+      "suggested_key": { "default": "Alt+Shift+End" },
+      "description": "Move the selected tab(s) to the end of the tab strip"
     }
   }
 }

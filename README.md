@@ -26,6 +26,18 @@ model picks — reusing an existing group in the window, or creating a new one.
 
 The shortcut and context menu show a badge on the icon: ✓ for success, ! for failure (details in the service worker console).
 
+### Move tabs to the start or end
+
+Right-click a page (or the Teddy toolbar icon) → **Move tab(s) to start of tab
+strip** or **Move tab(s) to end of tab strip**. If the tab is part of a
+multi-selection, all selected tabs move together and keep their order. Pinned
+tabs move to the start or end of the pinned area. Chrome doesn't let extensions
+add items to the menu you get by right-clicking a tab itself.
+
+Keyboard shortcuts do the same for the selected tab(s): **Alt+Shift+Home** (start)
+and **Alt+Shift+End** (end). On a Mac laptop, Home and End are **fn+←** and
+**fn+→**. Change them at `chrome://extensions/shortcuts`.
+
 ### New tab position
 
 Chrome sometimes opens new tabs at the end of the tab strip and sometimes next

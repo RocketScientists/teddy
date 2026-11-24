@@ -1,27 +1,55 @@
 import { loadSettings, parseCategories, validateSettings } from "./lib/settings.js";
 import { classifyPage } from "./lib/llm.js";
 import { MESSAGE } from "./lib/messages.js";
-import { startTabPositioning } from "./lib/tab-position.js";
+import { moveTabsToEdge, startTabPositioning } from "./lib/tab-position.js";
 
-const MENU_ID = "classify-tab";
+const MENU = {
+  classify: "classify-tab",
+  moveToStart: "move-tabs-to-start",
+  moveToEnd: "move-tabs-to-end",
+};
+
+// The move menu ids double as the shortcut command names in manifest.json.
+const MOVE_EDGE_BY_ID = { [MENU.moveToStart]: "start", [MENU.moveToEnd]: "end" };
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: MENU_ID,
-    title: "Classify tab into group",
-    contexts: ["page", "action"],
-  });
+  const contexts = ["page", "action"];
+  chrome.contextMenus.create({ id: MENU.classify, title: "Classify tab into group", contexts });
+  chrome.contextMenus.create({ id: MENU.moveToStart, title: "Move tab(s) to start of tab strip", contexts });
+  chrome.contextMenus.create({ id: MENU.moveToEnd, title: "Move tab(s) to end of tab strip", contexts });
 });
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId !== MENU_ID || !tab) return;
-  await runWithBadge(() => classifyTabs([tab]));
+  if (!tab) return;
+  if (info.menuItemId === MENU.classify) {
+    await runWithBadge(() => classifyTabs([tab]));
+  } else if (MOVE_EDGE_BY_ID[info.menuItemId]) {
+    await moveTabs(() => tabsToMove(tab), MOVE_EDGE_BY_ID[info.menuItemId]);
+  }
 });
 
+/** The clicked tab, plus the other selected tabs if it is part of a multi-selection. */
+async function tabsToMove(clickedTab) {
+  if (!clickedTab.highlighted) return [clickedTab];
+  return chrome.tabs.query({ windowId: clickedTab.windowId, highlighted: true });
+}
+
 chrome.commands.onCommand.addListener(async (command) => {
-  if (command !== "classify-selected-tabs") return;
-  await runWithBadge(async () => classifyTabs(await getSelectedTabs()));
+  if (command === "classify-selected-tabs") {
+    await runWithBadge(async () => classifyTabs(await getSelectedTabs()));
+  } else if (MOVE_EDGE_BY_ID[command]) {
+    await moveTabs(getSelectedTabs, MOVE_EDGE_BY_ID[command]);
+  }
 });
+
+/** Move tabs to an edge of the tab strip; failures are only logged (there's no UI to show them). */
+async function moveTabs(getTabs, edge) {
+  try {
+    await moveTabsToEdge(await getTabs(), edge);
+  } catch (err) {
+    console.warn("Teddy: couldn't move tabs:", errorMessage(err));
+  }
+}
 
 // Optionally force new tabs to the start or end of the tab strip.
 startTabPositioning();
