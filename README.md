@@ -16,12 +16,15 @@ model picks — reusing an existing group in the window, or creating a new one.
    - **API key** – stored in `chrome.storage.local`, never synced
    - **Model** – e.g. `gpt-4o-mini`
    - Optional **preferred group names** to steer the model toward your own categories
+   - Optional **New tabs** settings – see [New tab position](#new-tab-position)
 
 ## Use
 
 - Select one tab (or several with Shift/Ctrl/Cmd-click), then click the toolbar icon → **Classify selected tab(s)**.
 - Or press **Alt+Shift+G** (change at `chrome://extensions/shortcuts`).
 - Or right-click a page → **Classify tab into group**.
+
+The shortcut and context menu show a badge on the icon: ✓ for success, ! for failure (details in the service worker console).
 
 ### New tab position
 
@@ -32,7 +35,12 @@ from the new-tab shortcut and from other apps; tabs opened from a link stay
 next to their opener unless you tick **Also move tabs opened from a link**.
 Pinned tabs and tabs Chrome puts in a group are never moved.
 
-The shortcut and context menu show a badge on the icon: ✓ for success, ! for failure (details in the service worker console).
+Restored tabs are left where Chrome puts them: reopened closed tabs
+(Ctrl/Cmd+Shift+T), restored windows, and tabs restored at startup or after a
+crash. Chrome doesn't mark restored tabs, so Teddy treats a new tab as restored
+if its window opened in the last 2 seconds, or if its URL matches a tab closed
+in the last 30 minutes. As a result, a link from another app to a page you
+closed recently opens where Chrome puts it.
 
 ## How it works
 

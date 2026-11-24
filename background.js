@@ -1,7 +1,7 @@
 import { loadSettings, parseCategories, validateSettings } from "./lib/settings.js";
 import { classifyPage } from "./lib/llm.js";
 import { MESSAGE } from "./lib/messages.js";
-import { placeNewTab } from "./lib/tab-position.js";
+import { startTabPositioning } from "./lib/tab-position.js";
 
 const MENU_ID = "classify-tab";
 
@@ -24,9 +24,7 @@ chrome.commands.onCommand.addListener(async (command) => {
 });
 
 // Optionally force new tabs to the start or end of the tab strip.
-chrome.tabs.onCreated.addListener((tab) => {
-  placeNewTab(tab).catch((err) => console.warn("Teddy: couldn't move new tab:", errorMessage(err)));
-});
+startTabPositioning();
 
 // Messages from the popup.
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
