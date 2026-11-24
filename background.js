@@ -3,6 +3,7 @@ import { classifyPage } from "./lib/llm.js";
 import { MESSAGE } from "./lib/messages.js";
 import { startNewTabPositioning } from "./lib/new-tab-position.js";
 import { EDGE, moveTabsToEdge } from "./lib/tab-move.js";
+import { restoreGroup, saveGroup } from "./lib/bookmarks.js";
 
 // Each action's id is both its context-menu item id and, where it has one, its
 // command name in manifest.json "commands". `menu` is the menu item title.
@@ -23,6 +24,14 @@ const ACTIONS = {
   "move-tabs-to-end": {
     menu: "Move tab(s) to end of tab strip",
     run: async (tab) => moveTabsToEdge(await getSelectedTabs(tab?.windowId), EDGE.end),
+  },
+  "save-tab-group": {
+    menu: "Save tab group to bookmarks",
+    run: async (tab) => saveCurrentGroup(tab),
+  },
+  "save-tab-groups-in-window": {
+    menu: "Save all tab groups in window to bookmarks",
+    run: async (tab) => saveGroupsInWindow(tab),
   },
 };
 
@@ -54,7 +63,51 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       .catch((err) => sendResponse({ ok: false, error: errorMessage(err) }));
     return true; // keep the channel open for the async response
   }
+  if (msg?.type === MESSAGE.restoreSavedGroup) {
+    restoreGroup(msg.folderId, msg.windowId)
+      .then((result) => sendResponse({ ok: true, ...result }))
+      .catch((err) => sendResponse({ ok: false, error: errorMessage(err) }));
+    return true;
+  }
 });
+
+/** The tab a menu was opened on, or the active tab of the last focused window. */
+async function currentTab(tab) {
+  if (tab) return tab;
+  const [active] = await chrome.tabs.query({ lastFocusedWindow: true, active: true });
+  if (!active) throw new Error("No active tab found. Focus a browser window and try again.");
+  return active;
+}
+
+async function saveCurrentGroup(tab) {
+  tab = await currentTab(tab);
+  if (tab.groupId === chrome.tabGroups.TAB_GROUP_ID_NONE) {
+    throw new Error("This tab isn't in a tab group.");
+  }
+  const saved = await saveGroup(tab.groupId);
+  console.info("Teddy: saved", saved);
+}
+
+/** Save every named group in the window. Unnamed groups are skipped, not failures. */
+async function saveGroupsInWindow(tab) {
+  tab = await currentTab(tab);
+  const groups = await chrome.tabGroups.query({ windowId: tab.windowId });
+  if (!groups.length) throw new Error("This window has no tab groups.");
+  const results = [];
+  for (const group of groups) {
+    if (!group.title?.trim()) {
+      console.info("Teddy: skipped an unnamed tab group");
+      continue;
+    }
+    try {
+      results.push({ ok: true, ...(await saveGroup(group.id)) });
+    } catch (err) {
+      results.push({ ok: false, name: group.title, error: errorMessage(err) });
+    }
+  }
+  console.info("Teddy: saved", results);
+  return results;
+}
 
 /**
  * Highlighted (multi-selected) tabs in a window; falls back to the active tab.

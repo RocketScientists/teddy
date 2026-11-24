@@ -1,15 +1,26 @@
 import { loadSettings, saveSettings } from "./lib/settings.js";
+import { listBookmarkFolders } from "./lib/bookmarks.js";
 
 const form = document.getElementById("form");
 const saved = document.getElementById("saved");
 
-loadSettings().then((settings) => {
+async function fillFolderList() {
+  const select = form.elements.bookmarkRootId;
+  for (const { id, label } of await listBookmarkFolders()) {
+    select.append(new Option(label, id));
+  }
+}
+
+Promise.all([loadSettings(), fillFolderList()]).then(([settings]) => {
   for (const [key, value] of Object.entries(settings)) {
     const field = form.elements[key];
     if (!field) continue;
     if (field.type === "checkbox") field.checked = Boolean(value);
     else field.value = value;
   }
+  // A chosen root folder that was deleted shows (and acts as) the default.
+  const root = form.elements.bookmarkRootId;
+  if (root.value !== settings.bookmarkRootId) root.value = "";
 });
 
 form.addEventListener("submit", async (e) => {
@@ -23,6 +34,9 @@ form.addEventListener("submit", async (e) => {
     categories: fields.categories.value,
     newTabPosition: fields.newTabPosition.value,
     moveTabsOpenedFromLinks: fields.moveTabsOpenedFromLinks.checked,
+    bookmarkRootId: fields.bookmarkRootId.value,
+    // Not trimmed: spaces are part of the separator.
+    groupSeparator: fields.groupSeparator.value,
   });
   saved.textContent = "Saved ✓";
   setTimeout(() => (saved.textContent = ""), 2000);

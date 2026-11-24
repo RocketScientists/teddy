@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Teddy",
   "version": "0.1.0",
-  "description": "Classify the selected tab(s) into tab groups using an OpenAI-compatible LLM.",
-  "permissions": ["tabs", "tabGroups", "scripting", "storage", "contextMenus"],
+  "description": "Classify the selected tab(s) into tab groups using an OpenAI-compatible LLM, and save tab groups as bookmark folders.",
+  "permissions": ["tabs", "tabGroups", "scripting", "storage", "contextMenus", "bookmarks"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js",
@@ -26,6 +26,12 @@
     "move-tabs-to-end": {
       "suggested_key": { "default": "Alt+Shift+End" },
       "description": "Move the selected tab(s) to the end of the tab strip"
+    },
+    "save-tab-group": {
+      "description": "Save the current tab's group to bookmarks"
+    },
+    "save-tab-groups-in-window": {
+      "description": "Save all tab groups in the window to bookmarks"
     }
   }
 }

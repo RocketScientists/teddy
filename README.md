@@ -17,6 +17,7 @@ model picks — reusing an existing group in the window, or creating a new one.
    - **Model** – e.g. `gpt-4o-mini`
    - Optional **preferred group names** to steer the model toward your own categories
    - Optional **New tabs** settings – see [New tab position](#new-tab-position)
+   - Optional **Bookmarks** settings – see [Save and restore tab groups](#save-and-restore-tab-groups)
 
 ## Use
 
@@ -39,6 +40,35 @@ add items to the menu you get by right-clicking a tab itself.
 Keyboard shortcuts do the same for the selected tab(s): **Alt+Shift+Home** (start)
 and **Alt+Shift+End** (end). On a Mac laptop, Home and End are **fn+←** and
 **fn+→**. Change them at `chrome://extensions/shortcuts`.
+
+### Save and restore tab groups
+
+Right-click a page (or the Teddy toolbar icon) → **Save tab group to bookmarks**
+saves the current tab's group, and **Save all tab groups in window to
+bookmarks** saves every named group in the window. Both are also keyboard
+commands with no default key; assign one at `chrome://extensions/shortcuts`.
+Tabs stay open.
+
+Each group becomes a bookmark folder under the root folder ("Teddy" in Other
+bookmarks unless you pick another in **Settings → Bookmarks**). The group name
+is split on the **group separator** (default `/`) into nested folders, so the
+group "Project/ABC" is saved to `Teddy › Project › ABC`. Parts are trimmed and
+empty ones dropped. Saving again replaces the folder's bookmarks with the
+group's current tabs, in order; bookmarks you added to that folder by hand are
+removed, and subfolders are never touched. Unnamed groups can't be saved. The
+group's colour is remembered and used when it is restored.
+
+To restore, open the Teddy popup: **Saved groups** lists the folders under the
+root folder, and each folder with bookmarks has a **Restore** button. Restore
+opens that folder's bookmarks (not its subfolders) as background tabs in the
+current window. If the window already has a group with the same name (ignoring
+case and spaces around the separator), the bookmarks that aren't open in it yet
+are added to it. Otherwise a new group named by joining the folders with the
+separator ("Project/ABC") is created at the end of the tab strip. Teddy never
+deletes saved groups; do that in Chrome's bookmark manager.
+
+Changing the separator doesn't rename folders you've already saved; it only
+affects later saves and restores.
 
 ### New tab position
 
@@ -63,6 +93,7 @@ closed recently opens where Chrome puts it.
 | `background.js` | Service worker: gets the selected tabs, extracts page text via `chrome.scripting`, calls the LLM, groups tabs |
 | `lib/llm.js` | Builds the prompt, calls `POST {base}/chat/completions`, parses `{"group","color"}` JSON |
 | `lib/settings.js` | Settings defaults and storage |
+| `lib/bookmarks.js` | Saves tab groups as bookmark folders and restores them |
 | `lib/tab-move.js` | Moves tabs to the start or end of the tab strip |
 | `lib/new-tab-position.js` | The "New tabs" setting: moves new tabs as they open, leaving restored tabs alone |
 | `popup.*`, `options.*` | UI |

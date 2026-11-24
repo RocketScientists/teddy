@@ -42,6 +42,17 @@
       Also move tabs opened from a link in another tab
       <small>Off: those stay next to the tab you opened them from.</small>
     </label>
+    <h2>Bookmarks</h2>
+    <p class="section-hint">Save tab groups as bookmark folders and restore them from the toolbar popup.</p>
+    <label>Save tab groups in
+      <select name="bookmarkRootId">
+        <option value="">Teddy (in Other bookmarks, created on first save)</option>
+      </select>
+    </label>
+    <label>Group separator
+      <input name="groupSeparator" required placeholder="/" />
+      <small>Splits a group name into nested folders. With "/", the group "Project/ABC" is saved to Project › ABC, and restores as "Project/ABC". Spaces count, so "- " splits "Project- ABC".</small>
+    </label>
     <button type="submit">Save</button>
     <span id="saved"></span>
   </form>
