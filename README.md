@@ -31,7 +31,9 @@ The shortcut and context menu show a badge on the icon: ✓ for success, ! for f
 Right-click a page (or the Teddy toolbar icon) → **Move tab(s) to start of tab
 strip** or **Move tab(s) to end of tab strip**. If the tab is part of a
 multi-selection, all selected tabs move together and keep their order. Pinned
-tabs move to the start or end of the pinned area. Chrome doesn't let extensions
+tabs move to the start or end of the pinned area. Grouped tabs leave their
+group, and a moved tab never joins the group it lands next to. On the page menu
+Chrome puts Teddy's items in a **Teddy** submenu. Chrome doesn't let extensions
 add items to the menu you get by right-clicking a tab itself.
 
 Keyboard shortcuts do the same for the selected tab(s): **Alt+Shift+Home** (start)
@@ -61,7 +63,8 @@ closed recently opens where Chrome puts it.
 | `background.js` | Service worker: gets the selected tabs, extracts page text via `chrome.scripting`, calls the LLM, groups tabs |
 | `lib/llm.js` | Builds the prompt, calls `POST {base}/chat/completions`, parses `{"group","color"}` JSON |
 | `lib/settings.js` | Settings defaults and storage |
-| `lib/tab-position.js` | Moves new tabs to the start or end of the tab strip |
+| `lib/tab-move.js` | Moves tabs to the start or end of the tab strip |
+| `lib/new-tab-position.js` | The "New tabs" setting: moves new tabs as they open, leaving restored tabs alone |
 | `popup.*`, `options.*` | UI |
 
 Tabs are classified one at a time so a group created for one tab is offered as

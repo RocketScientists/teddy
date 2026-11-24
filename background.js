@@ -1,58 +1,49 @@
 import { loadSettings, parseCategories, validateSettings } from "./lib/settings.js";
 import { classifyPage } from "./lib/llm.js";
 import { MESSAGE } from "./lib/messages.js";
-import { moveTabsToEdge, startTabPositioning } from "./lib/tab-position.js";
+import { startNewTabPositioning } from "./lib/new-tab-position.js";
+import { EDGE, moveTabsToEdge } from "./lib/tab-move.js";
 
-const MENU = {
-  classify: "classify-tab",
-  moveToStart: "move-tabs-to-start",
-  moveToEnd: "move-tabs-to-end",
+// Each action's id is both its context-menu item id and, where it has one, its
+// command name in manifest.json "commands". `menu` is the menu item title.
+// `run(tab)` gets the tab the menu was opened on (undefined for a shortcut);
+// it returns per-tab results for runWithBadge, or nothing when there are none.
+const ACTIONS = {
+  "classify-tab": {
+    menu: "Classify tab into group",
+    run: (tab) => classifyTabs([tab]),
+  },
+  "classify-selected-tabs": {
+    run: async () => classifyTabs(await getSelectedTabs()),
+  },
+  "move-tabs-to-start": {
+    menu: "Move tab(s) to start of tab strip",
+    run: async (tab) => moveTabsToEdge(await getSelectedTabs(tab?.windowId), EDGE.start),
+  },
+  "move-tabs-to-end": {
+    menu: "Move tab(s) to end of tab strip",
+    run: async (tab) => moveTabsToEdge(await getSelectedTabs(tab?.windowId), EDGE.end),
+  },
 };
 
-// The move menu ids double as the shortcut command names in manifest.json.
-const MOVE_EDGE_BY_ID = { [MENU.moveToStart]: "start", [MENU.moveToEnd]: "end" };
-
 chrome.runtime.onInstalled.addListener(() => {
-  const contexts = ["page", "action"];
-  chrome.contextMenus.create({ id: MENU.classify, title: "Classify tab into group", contexts });
-  chrome.contextMenus.create({ id: MENU.moveToStart, title: "Move tab(s) to start of tab strip", contexts });
-  chrome.contextMenus.create({ id: MENU.moveToEnd, title: "Move tab(s) to end of tab strip", contexts });
+  for (const [id, { menu }] of Object.entries(ACTIONS)) {
+    if (menu) chrome.contextMenus.create({ id, title: menu, contexts: ["page", "action"] });
+  }
 });
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (!tab) return;
-  if (info.menuItemId === MENU.classify) {
-    await runWithBadge(() => classifyTabs([tab]));
-  } else if (MOVE_EDGE_BY_ID[info.menuItemId]) {
-    await moveTabs(() => tabsToMove(tab), MOVE_EDGE_BY_ID[info.menuItemId]);
-  }
+  const action = ACTIONS[info.menuItemId];
+  if (action && tab) await runWithBadge(() => action.run(tab));
 });
-
-/** The clicked tab, plus the other selected tabs if it is part of a multi-selection. */
-async function tabsToMove(clickedTab) {
-  if (!clickedTab.highlighted) return [clickedTab];
-  return chrome.tabs.query({ windowId: clickedTab.windowId, highlighted: true });
-}
 
 chrome.commands.onCommand.addListener(async (command) => {
-  if (command === "classify-selected-tabs") {
-    await runWithBadge(async () => classifyTabs(await getSelectedTabs()));
-  } else if (MOVE_EDGE_BY_ID[command]) {
-    await moveTabs(getSelectedTabs, MOVE_EDGE_BY_ID[command]);
-  }
+  const action = ACTIONS[command];
+  if (action) await runWithBadge(() => action.run());
 });
 
-/** Move tabs to an edge of the tab strip; failures are only logged (there's no UI to show them). */
-async function moveTabs(getTabs, edge) {
-  try {
-    await moveTabsToEdge(await getTabs(), edge);
-  } catch (err) {
-    console.warn("Teddy: couldn't move tabs:", errorMessage(err));
-  }
-}
-
 // Optionally force new tabs to the start or end of the tab strip.
-startTabPositioning();
+startNewTabPositioning();
 
 // Messages from the popup.
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
@@ -66,12 +57,16 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 });
 
 /**
- * Highlighted (multi-selected) tabs in the last focused window; falls back to the active tab.
- * Uses lastFocusedWindow because a service worker has no "current" window of its own.
+ * Highlighted (multi-selected) tabs in a window; falls back to the active tab.
+ * Without `windowId` it uses the last focused window, because a service worker
+ * has no "current" window of its own. The active tab is always highlighted, so
+ * a context-menu click (whose tab is the active one) gets the whole selection.
+ * @param {number} [windowId]
  */
-async function getSelectedTabs() {
-  let tabs = await chrome.tabs.query({ lastFocusedWindow: true, highlighted: true });
-  if (!tabs.length) tabs = await chrome.tabs.query({ lastFocusedWindow: true, active: true });
+async function getSelectedTabs(windowId) {
+  const win = windowId === undefined ? { lastFocusedWindow: true } : { windowId };
+  let tabs = await chrome.tabs.query({ ...win, highlighted: true });
+  if (!tabs.length) tabs = await chrome.tabs.query({ ...win, active: true });
   if (!tabs.length) throw new Error("No selected tab found. Focus a browser window and try again.");
   return tabs;
 }
@@ -176,11 +171,15 @@ function errorMessage(err) {
   return String(err?.message || err);
 }
 
-/** Badge feedback for triggers that have no UI (shortcut, context menu). */
+/**
+ * Badge feedback for triggers that have no UI (shortcut, context menu).
+ * @param {() => Promise<{ok:boolean}[] | void>} fn  per-tab results, if it has any;
+ *   a throw means failure, otherwise success unless a result is not ok
+ */
 async function runWithBadge(fn) {
   await chrome.action.setBadgeText({ text: "…" });
   try {
-    const results = await fn();
+    const results = (await fn()) || [];
     const failed = results.filter((r) => !r.ok);
     if (failed.length) console.warn("Teddy failures:", failed);
     await setBadge(failed.length ? BADGE.failure : BADGE.success);
