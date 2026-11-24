@@ -39,6 +39,7 @@ There is no build step, package manager, linter or test suite. Chrome loads the 
   - Saves and restores share one promise queue, so overlapping saves can't create the same folder twice.
   - The root folder is the `bookmarkRootId` setting if that folder still exists, otherwise "Teddy" under "Other bookmarks", created on the first save. Group colours are kept in `chrome.storage.local` under `savedGroupColors`, keyed by folder ID, because bookmarks can't store them.
   - Chrome's context menus have no bookmark context, so restore happens only from the popup.
+- **`lib/save-menu-title.js`** retitles the "save-tab-group" menu item with the active tab's group name, and disables it when that tab has no named group. Chrome has no "menu shown" event and no selected state for a group header, so it listens to tab activation, `groupId` changes on the active tab, group updates and removals, and window focus. `startSaveMenuTitle()` is called at the top level, and `onInstalled` refreshes the title again after it creates the menu items.
 - Tab edits (`tabs.move`, `tabs.ungroup`) fail while the user drags a tab, so `lib/tab-move.js` retries them a few times. It detects this by matching Chrome's English error text.
 - **`lib/settings.js`** holds the settings defaults. Settings are stored in `chrome.storage.local`, never synced, because they include the API key. `validateSettings` is the only check for whether settings are usable; both the popup and the worker call it.
 - **`lib/messages.js`** lists the message-type constants shared by the popup and the worker.

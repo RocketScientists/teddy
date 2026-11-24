@@ -4,6 +4,7 @@ import { MESSAGE } from "./lib/messages.js";
 import { startNewTabPositioning } from "./lib/new-tab-position.js";
 import { EDGE, moveTabsToEdge } from "./lib/tab-move.js";
 import { restoreGroup, saveGroup } from "./lib/bookmarks.js";
+import { refreshSaveMenuTitle, startSaveMenuTitle } from "./lib/save-menu-title.js";
 
 // Each action's id is both its context-menu item id and, where it has one, its
 // command name in manifest.json "commands". `menu` is the menu item title.
@@ -39,7 +40,11 @@ chrome.runtime.onInstalled.addListener(() => {
   for (const [id, { menu }] of Object.entries(ACTIONS)) {
     if (menu) chrome.contextMenus.create({ id, title: menu, contexts: ["page", "action"] });
   }
+  refreshSaveMenuTitle();
 });
+
+// The "Save tab group" item shows the name of the group it would save.
+startSaveMenuTitle("save-tab-group");
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   const action = ACTIONS[info.menuItemId];

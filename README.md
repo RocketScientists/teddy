@@ -47,7 +47,10 @@ Right-click a page (or the Teddy toolbar icon) → **Save tab group to bookmarks
 saves the current tab's group, and **Save all tab groups in window to
 bookmarks** saves every named group in the window. Both are also keyboard
 commands with no default key; assign one at `chrome://extensions/shortcuts`.
-Tabs stay open.
+Tabs stay open. The first menu item shows the name of the group it will save,
+for example **Save tab group "Project/ABC" to bookmarks**, and is greyed out
+when the current tab isn't in a named group. Chrome doesn't tell extensions
+which group header you clicked, so click a tab inside the group first.
 
 Each group becomes a bookmark folder under the root folder ("Teddy" in Other
 bookmarks unless you pick another in **Settings → Bookmarks**). The group name
@@ -94,6 +97,7 @@ closed recently opens where Chrome puts it.
 | `lib/llm.js` | Builds the prompt, calls `POST {base}/chat/completions`, parses `{"group","color"}` JSON |
 | `lib/settings.js` | Settings defaults and storage |
 | `lib/bookmarks.js` | Saves tab groups as bookmark folders and restores them |
+| `lib/save-menu-title.js` | Keeps the "Save tab group" menu item showing the current group's name |
 | `lib/tab-move.js` | Moves tabs to the start or end of the tab strip |
 | `lib/new-tab-position.js` | The "New tabs" setting: moves new tabs as they open, leaving restored tabs alone |
 | `popup.*`, `options.*` | UI |
