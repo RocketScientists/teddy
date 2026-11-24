@@ -26,12 +26,11 @@ small, .hint { color: #777; display: block; margin-top: 4px; }
 
 .options { max-width: 560px; }
 .options label { display: block; margin-bottom: 14px; font-weight: 600; }
-.options input, .options textarea {
+.options input, .options textarea, .options select {
   display: block; width: 100%; box-sizing: border-box; margin-top: 4px;
   padding: 6px; font: inherit; font-weight: normal;
 }
 .options small { font-weight: normal; }
 .options h2 { font-size: 14px; margin: 22px 0 10px; }
-.options select { display: block; width: 100%; margin-top: 4px; padding: 6px; font: inherit; font-weight: normal; }
 .options label.checkbox { font-weight: normal; }
 .options label.checkbox input { display: inline; width: auto; margin: 0 6px 0 0; }
