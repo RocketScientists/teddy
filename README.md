@@ -45,6 +45,8 @@ and **Alt+Shift+End** (end). On a Mac laptop, Home and End are **fn+←** and
 
 Press **Alt+Shift+C** to copy the current tab's URL to the clipboard. The badge
 shows ✓ when it's copied. Change the key at `chrome://extensions/shortcuts`.
+If the shortcut does nothing, set it there: Chrome may not assign a default
+key to a command added by an update, or when another extension already uses it.
 A service worker can't use the clipboard, so Teddy copies through a hidden
 offscreen page. That needs the `offscreen` and `clipboardWrite` permissions;
 Chrome shows the second as "Modify data you copy and paste". Teddy only ever

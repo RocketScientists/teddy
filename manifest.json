@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Teddy",
   "version": "0.1.0",
-  "description": "Classify the selected tab(s) into tab groups using an OpenAI-compatible LLM, and save tab groups as bookmark folders.",
+  "description": "Classify the selected tab(s) into tab groups using an OpenAI-compatible LLM, save tab groups as bookmark folders, and copy the current URL.",
   "permissions": ["tabs", "tabGroups", "scripting", "storage", "contextMenus", "bookmarks", "webNavigation", "offscreen", "clipboardWrite"],
   "host_permissions": ["<all_urls>"],
   "background": {

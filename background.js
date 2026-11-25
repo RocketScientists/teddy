@@ -36,7 +36,7 @@ const ACTIONS = {
     run: async (tab) => saveGroupsInWindow(tab),
   },
   "copy-tab-url": {
-    run: async (tab) => copyText((await currentTab(tab)).url),
+    run: async (tab) => copyText(urlOf(await currentTab(tab))),
   },
 };
 
@@ -86,6 +86,13 @@ async function currentTab(tab) {
   const [active] = await chrome.tabs.query({ lastFocusedWindow: true, active: true });
   if (!active) throw new Error("No active tab found. Focus a browser window and try again.");
   return active;
+}
+
+/** A tab's address. A tab still loading its first page has it only in pendingUrl. */
+function urlOf(tab) {
+  const url = tab.url || tab.pendingUrl;
+  if (!url) throw new Error("This tab has no URL to copy yet.");
+  return url;
 }
 
 async function saveCurrentGroup(tab) {

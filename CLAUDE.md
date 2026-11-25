@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Teddy is a Chrome MV3 extension that classifies tabs into tab groups with an OpenAI-compatible LLM. It can also move tabs to the start or end of the tab strip, on demand or as new tabs open, and save tab groups as bookmark folders and restore them. README.md covers what it does, how to install it, its settings and the Ollama setup. Read it first. GLOSSARY.md defines the terms for saving and restoring groups (group path, root folder, saved group); use them.
+Teddy is a Chrome MV3 extension that classifies tabs into tab groups with an OpenAI-compatible LLM. It can also move tabs to the start or end of the tab strip, on demand or as new tabs open, save tab groups as bookmark folders and restore them, and copy the current tab's URL with a shortcut. README.md covers what it does, how to install it, its settings and the Ollama setup. Read it first. GLOSSARY.md defines the terms for saving and restoring groups (group path, root folder, saved group); use them.
 
 ## Development
 
@@ -47,5 +47,5 @@ There is no build step, package manager, linter or test suite. Chrome loads the 
 - Tab edits (`tabs.move`, `tabs.ungroup`) fail while the user drags a tab, so `lib/tab-move.js` retries them a few times. It detects this by matching Chrome's English error text.
 - **`lib/clipboard.js`** provides `copyText`, used by the `copy-tab-url` shortcut (a command with no menu item). A service worker has no clipboard access, so it opens `offscreen.html` (reason `CLIPBOARD`) if it isn't open yet and sends it `MESSAGE.copyToClipboard`. `offscreen.js` copies with a textarea and `document.execCommand("copy")`, because `navigator.clipboard` needs a focused page. The offscreen page never has a user gesture, so `execCommand("copy")` returns false unless the manifest has `clipboardWrite`; don't remove it. Copies go through one promise queue, because Chrome allows only one offscreen page. Chrome allows four suggested shortcuts per extension, and `copy-tab-url` uses the last one; new commands get no default key.
 - **`lib/settings.js`** holds the settings defaults. Settings are stored in `chrome.storage.local`, never synced, because they include the API key. `validateSettings` is the only check for whether settings are usable; both the popup and the worker call it.
-- **`lib/messages.js`** lists the message-type constants shared by the popup and the worker.
+- **`lib/messages.js`** lists the message-type constants shared by the popup, the offscreen page and the worker. `runtime.sendMessage` from the worker reaches every open extension page, so a future `onMessage` listener in the popup or options page must ignore `copyToClipboard`, which only the offscreen page answers.
 - **`popup.js`** clears the badge when it opens. The worker's 3-second clear timer is lost if Chrome stops the worker first.
