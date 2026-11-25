@@ -67,7 +67,9 @@ opens that folder's bookmarks (not its subfolders) as background tabs in the
 current window. If the window already has a group with the same name (ignoring
 case and spaces around the separator), the bookmarks that aren't open in it yet
 are added to it. Otherwise a new group named by joining the folders with the
-separator ("Project/ABC") is created at the end of the tab strip. Teddy never
+separator ("Project/ABC") is created where new tabs open: at the start of the
+tab strip (after pinned tabs) if **Settings → New tabs** says start, otherwise
+at the end. Teddy never
 deletes saved groups; do that in Chrome's bookmark manager.
 
 Changing the separator doesn't rename folders you've already saved; it only
@@ -88,6 +90,10 @@ crash. Chrome doesn't mark restored tabs, so Teddy treats a new tab as restored
 if its window opened in the last 2 seconds, or if its URL matches a tab closed
 in the last 30 minutes. As a result, a link from another app to a page you
 closed recently opens where Chrome puts it.
+
+To see why a new tab wasn't moved, open the service worker console from the
+extension card, turn on the **Verbose** log level, and look for
+"Teddy: left new tab … alone".
 
 ## How it works
 
