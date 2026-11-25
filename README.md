@@ -82,6 +82,10 @@ to the current tab. In **Settings → New tabs** you can force new tabs to open
 at the **start** (just after pinned tabs) or the **end**. This applies to tabs
 from the new-tab shortcut and from other apps; tabs opened from a link stay
 next to their opener unless you tick **Also move tabs opened from a link**.
+Duplicated tabs stay next to the original under the same rule. Teddy uses the
+`webNavigation` permission to tell link-opened tabs apart, because Chrome marks
+tabs from other apps as opened from the current tab too. Its install warning
+("Read your browsing history") is one Teddy's `tabs` permission already shows.
 Pinned tabs and tabs Chrome puts in a group are never moved.
 
 Restored tabs are left where Chrome puts them: reopened closed tabs
@@ -104,7 +108,7 @@ extension card, turn on the **Verbose** log level, and look for
 | `lib/settings.js` | Settings defaults and storage |
 | `lib/bookmarks.js` | Saves tab groups as bookmark folders and restores them |
 | `lib/save-menu-title.js` | Keeps the "Save tab group" menu item showing the current group's name |
-| `lib/tab-move.js` | Moves tabs to the start or end of the tab strip |
+| `lib/tab-move.js` | Moves tabs, or a whole tab group, to the start or end of the tab strip |
 | `lib/new-tab-position.js` | The "New tabs" setting: moves new tabs as they open, leaving restored tabs alone |
 | `popup.*`, `options.*` | UI |
 
