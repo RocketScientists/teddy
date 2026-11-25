@@ -5,6 +5,7 @@ import { startNewTabPositioning } from "./lib/new-tab-position.js";
 import { EDGE, moveTabsToEdge } from "./lib/tab-move.js";
 import { restoreGroup, saveGroup } from "./lib/bookmarks.js";
 import { refreshSaveMenuTitle, startSaveMenuTitle } from "./lib/save-menu-title.js";
+import { copyText } from "./lib/clipboard.js";
 
 // Each action's id is both its context-menu item id and, where it has one, its
 // command name in manifest.json "commands". `menu` is the menu item title.
@@ -33,6 +34,9 @@ const ACTIONS = {
   "save-tab-groups-in-window": {
     menu: "Save all tab groups in window to bookmarks",
     run: async (tab) => saveGroupsInWindow(tab),
+  },
+  "copy-tab-url": {
+    run: async (tab) => copyText((await currentTab(tab)).url),
   },
 };
 

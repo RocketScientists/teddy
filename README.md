@@ -41,6 +41,15 @@ Keyboard shortcuts do the same for the selected tab(s): **Alt+Shift+Home** (star
 and **Alt+Shift+End** (end). On a Mac laptop, Home and End are **fn+←** and
 **fn+→**. Change them at `chrome://extensions/shortcuts`.
 
+### Copy the current URL
+
+Press **Alt+Shift+C** to copy the current tab's URL to the clipboard. The badge
+shows ✓ when it's copied. Change the key at `chrome://extensions/shortcuts`.
+A service worker can't use the clipboard, so Teddy copies through a hidden
+offscreen page. That needs the `offscreen` and `clipboardWrite` permissions;
+Chrome shows the second as "Modify data you copy and paste". Teddy only ever
+writes the URL when you press the shortcut, and never reads the clipboard.
+
 ### Save and restore tab groups
 
 Right-click a page (or the Teddy toolbar icon) → **Save tab group to bookmarks**
@@ -108,6 +117,7 @@ extension card, turn on the **Verbose** log level, and look for
 | `lib/settings.js` | Settings defaults and storage |
 | `lib/bookmarks.js` | Saves tab groups as bookmark folders and restores them |
 | `lib/save-menu-title.js` | Keeps the "Save tab group" menu item showing the current group's name |
+| `lib/clipboard.js`, `offscreen.*` | Copies the current tab's URL through a hidden offscreen page |
 | `lib/tab-move.js` | Moves tabs, or a whole tab group, to the start or end of the tab strip |
 | `lib/new-tab-position.js` | The "New tabs" setting: moves new tabs as they open, leaving restored tabs alone |
 | `popup.*`, `options.*` | UI |
